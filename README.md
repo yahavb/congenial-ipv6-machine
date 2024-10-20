@@ -34,7 +34,7 @@ kubectl get no -L beta.kubernetes.io/instance-type| awk '{print $NF}'| sort | un
    1 INSTANCE-TYPE
  108 m5.4xlarge
    2 m5.xlarge
-[congenial-ipv6-machine]$kubectl config use-context yahavb@pv4-usw2.us-west-2.eksctl.io 
+[congenial-ipv6-machine]$kubectl config use-context yahavb@ipv4-usw2.us-west-2.eksctl.io 
 Switched to context "yahavb@ipv4-usw2.us-west-2.eksctl.io".
 [congenial-ipv6-machine]$kubectl get deploy
 NAME                READY       UP-TO-DATE   AVAILABLE   AGE
@@ -54,5 +54,18 @@ Ensure that the `tx` and `rx` rates on both the server and client for IPv4 and I
 ![Alt text](./pod-rx-tx-baseline-5000cli-500srv.png)
 
 ### Enable flow logs for both VPCs of the two clusters to CloudWatch Logs, so we can run Log Insights statistics to identify the top network producers and consumers.
+for each of the vpc flow logs, pull the the top `srcAddr,srcPort,dstAddr,dstPort` as follow:
 
+```
+stats sum(bytes) as bytesTransferred by srcAddr,srcPort, dstAddr,dstPort
+| filter srcPort like /80/ and dstPort like /80/
+| sort bytesTransferred desc
+| limit 20
+```
+note that we first want to compre the traffic from and to the curl client to the apache server hence the filter.
 
+![Alt text](./ipv4-sum-bytes-as-bytesTransferred-by-srcAddr-srcPort-dstAddr-dstPort.png)
+
+![Alt text](./ipv6-sum-bytes-as-bytesTransferred-by-srcAddr-srcPort-dstAddr-dstPort.png)
+
+top bytesTransferred in both cases are in the rnge of ~300K bytes.
