@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache-ipv4
+  labels:
+    app: apache-ipv4
+spec:
+  replicas: 3  # You can adjust the number of replicas based on your needs
+  selector:
+    matchLabels:
+      app: apache-ipv4
+  template:
+    metadata:
+      labels:
+        app: apache-ipv4
+    spec:
+      containers:
+      - name: apache-container
+        image: httpd:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo $(yes "A" | head -c 102400) > /usr/local/apache2/htdocs/index.html;
+            httpd-foreground
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/local/apache2/htdocs
+          name: html-volume
+      volumes:
+      - name: html-volume
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache-ipv4
+spec:
+  selector:
+    app: apache-ipv4
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
+  ipFamilies:
+  - IPv4
