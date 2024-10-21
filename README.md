@@ -72,7 +72,7 @@ top bytesTransferred in both cases are in the rnge of ~300K bytes.
 
 Now we observe the top network producers and conseumers that are not related to the apache server and curl client.
 
-![Alt text](./ipv4-not-app-bytesTransferredi-by-srcAddr-srcPort-dstAddr-dstPort.png)
+![Alt text](./ipv4-not-app-bytesTransferred-by-srcAddr-srcPort-dstAddr-dstPort.png)
 
 ![Alt text](./ipv6-not-app-bytesTransferred-by-srcAddr-srcPort-dstAddr-dstPort.png)
 
