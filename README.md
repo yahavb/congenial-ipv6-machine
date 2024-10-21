@@ -72,9 +72,9 @@ top bytesTransferred in both cases are in the rnge of ~300K bytes.
 
 Now we observe the top network producers and conseumers that are not related to the apache server and curl client.
 
-![Alt text](./ipv4-not-app-bytesTransferred by srcAddr,srcPort,dstAddr,dstPort.png)
+![Alt text](./ipv4-not-app-bytesTransferredi-by-srcAddr-srcPort-dstAddr-dstPort.png)
 
-![Alt text](./ipv6-not-app-bytesTransferred by srcAddr,srcPort,dstAddr,dstPort.png)
+![Alt text](./ipv6-not-app-bytesTransferred-by-srcAddr-srcPort-dstAddr-dstPort.png)
 
 Here we found that traffic flows from and to and endpoint that listens on port 443 so we logged into one of the nodes to find the application that started the 443 socket server. 
 
