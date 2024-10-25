@@ -20,7 +20,7 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - |
-            echo $(yes "A" | head -c 102400) > /usr/local/apache2/htdocs/index.html;
+            echo $(yes "A" | head -c 902400) > /usr/local/apache2/htdocs/index.html;
             httpd-foreground
         ports:
         - containerPort: 80

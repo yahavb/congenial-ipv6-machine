@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curl-ipv6-envoy
+  labels:
+    app: curl
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: curl
+  template:
+    metadata:
+      labels:
+        app: curl
+    spec:
+      containers:
+      - name: curl-container
+        image: curlimages/curl:latest
+        ports:	
+        - containerPort: 80
+        command: ["sh", "-c"]
+        args: ["while true; do curl -H \"Content: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\" http://[::1]:8080; sleep 1; done"]
+
+      - name: envoy
+        image: envoyproxy/envoy:v1.25.0
+        ports:
+        - containerPort: 8080
+        args:
+        - "--config-path"
+        - "/etc/envoy/envoy.yaml"
+        volumeMounts:
+        - name: envoy-config
+          mountPath: /etc/envoy/envoy.yaml
+          subPath: envoy.yaml
+      volumes:
+      - name: envoy-config
+        configMap:
+          name: envoy-config 

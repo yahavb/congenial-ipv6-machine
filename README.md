@@ -130,3 +130,25 @@ unix  3      [ ]         STREAM     CONNECTED     51359443 4384/containerd
 
 In both cases, 443 is served for fluent-bit, the tool we uses to stream logs to cloudwatch logs. We found that in the case of ipv4, the endpoint being used is internal IP, e.g., `192.168.93.117` and in the ipv6, it uses external `dstAddr` like `44.234.123.124`
 TBD - how to configure fluent-bit endpoint
+
+### zone aware config with envoy
+Assuming IPv4 zone awareness is correctly configured, our investigation will focus on IPv6. We’ll run similar load tests with and without zone awareness to compare the impact.
+
+#### Baseline
+AZ spread config
+```
+congenial-ipv6-machine]$kubectl get no `kubectl get po -o wide| grep apache-deployment| awk '{print $7}'` -L topology.kubernetes.io/zone| awk '{print $NF}'| sort | uniq -c
+   1 ZONE
+   3 us-west-2a
+   4 us-west-2b
+   3 us-west-2d
+[congenial-ipv6-machine]$kubectl get no `kubectl get po -o wide| grep ipv6| awk '{print $7}'` -L topology.kubernetes.io/zone| awk '{print $NF}'| sort | uniq -c
+   1 ZONE
+  35 us-west-2a
+  34 us-west-2b
+  34 us-west-2d
+```
+
+We added envoy proxy for the load system config. Originally, client traffic, `curl-ipv6` flows to K8s service `apache-ipv6` that round robin among all AZs. Below we are going to 1/ configure envoy proxy with `strict-dns-round-robin`; and 2/ configure envoy proxy with `locality_weighted` configuration. We show the trffic shape before, ~04:00 UTC, when we applied [`envoy-config-locality_weighted-ipv6.yaml`](./envoy-config-locality_weighted-ipv6.yaml) and after. 
+![Alt text](./Pod-ipv6-network-transmitted-bytes-b4-after-az-aware.png) shows bytes transferred out of ipv6 pods throughout the test. 
+![Alt text](./genarate-cur-dto.png) shows the drop in InterZone-In/Out after 4 UTC when locality_weighted was applied. 
